@@ -122,7 +122,7 @@ call_message(Http_body, Soap_action,
                         version = Version} = Interface, 
              Attachments) ->
     Http_headers = proplists:get_value(http_headers, Http_client_options, []),
-    Content_type = content_type(Version),
+    Content_type = content_type(Version, Soap_action),
     Message_headers = 
         case Version of 
             '1.1' ->
@@ -188,10 +188,12 @@ call_http(Http_body,
             {error, {client, {http_request, Error}}, <<>>}
     end.
 
-content_type('1.1') ->
+content_type('1.1', _) ->
     ?CONTENT_TYPE;
-content_type('1.2') ->
-    ?CONTENT_TYPE_12.
+content_type('1.2', "\"\"") ->
+    ?CONTENT_TYPE_12;
+content_type('1.2', SoapAction) ->
+    ?CONTENT_TYPE_12 ++ ";action=" ++ SoapAction.
 
 %% encode the SOAP headers to XML
 encode_headers([], _) ->
