@@ -31,6 +31,7 @@
 
 -export([call/5]).
 -export([call/6]).
+-export([parse_response/4]).
 
 %%% ============================================================================
 %%% Types
@@ -219,6 +220,16 @@ encode_headers([Header|T], Model, Acc) when is_tuple(Header) ->
         Error ->
             {error, {client, {encoding_headers, {Error}}}}
     end.
+
+
+parse_response(Body, Status, Headers, Interface) ->
+    #interface{
+        model = Model,
+        client_handler = Handler,
+        soap_ns = Ns,
+        version = Version } = Interface,
+    parse_message(Body, Model, Status, Headers, Version, Ns, Handler).
+
 
 parse_message(Message, Model, Http_status, Http_headers, Version, Ns, Handler) ->
     case lists:keyfind("Content-Type", 1, Http_headers) of 
